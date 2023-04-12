@@ -1,0 +1,201 @@
+basePath: /api/v1
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.Depth:
+    properties:
+      ask_price:
+        items:
+          type: number
+        type: array
+      ask_qty:
+        items:
+          type: integer
+        type: array
+      bid_prices:
+        items:
+          type: number
+        type: array
+      bid_qty:
+        items:
+          type: integer
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      symbol:
+        $ref: '#/definitions/models.Scrip'
+      symbol_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.Quote:
+    properties:
+      close:
+        type: number
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      high:
+        type: number
+      id:
+        type: integer
+      last_trade_price:
+        type: number
+      low:
+        type: number
+      open:
+        type: number
+      symbol:
+        $ref: '#/definitions/models.Scrip'
+      symbol_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.Scrip:
+    properties:
+      company_name:
+        type: string
+      createdAt:
+        type: string
+      date_of_listing:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      face_value:
+        type: string
+      id:
+        type: integer
+      isin_number:
+        type: string
+      market:
+        $ref: '#/definitions/utils.MARKET'
+      market_lot:
+        type: string
+      paid_up_value:
+        type: string
+      series:
+        type: string
+      symbol:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  utils.MARKET:
+    enum:
+    - NSECM
+    type: string
+    x-enum-varnames:
+    - NSECM
+  utils.ResponseHTTP:
+    properties:
+      data: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: codingitperfect@protonmail.com
+  description: Unofficial NSE APIs for snapshot market data and static Data
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Go-NSEApi
+  version: "1.0"
+paths:
+  /market_data/depth/{symbolName}:
+    get:
+      consumes:
+      - application/json
+      description: Get depth of requested symbol on market. This is fetched via [https://www.nseindia.com/api/quote-equity?symbol=INFY&section=trade_info]
+        from NSE website
+      parameters:
+      - description: Symbol Name
+        in: path
+        name: symbolName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ResponseHTTP'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Depth'
+              type: object
+      summary: Get depth of specific symbols
+      tags:
+      - Market Data
+  /market_data/quote/{symbolName}:
+    get:
+      consumes:
+      - application/json
+      description: Get quote of requested symbol on market. This is fetched via [https://www.nseindia.com/api/quote-equity?symbol=INFY]
+        from NSE website
+      parameters:
+      - description: Symbol Name
+        in: path
+        name: symbolName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ResponseHTTP'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Quote'
+              type: object
+      summary: Get quote of specific symbols
+      tags:
+      - Market Data
+  /static_data/scrips:
+    get:
+      consumes:
+      - application/json
+      description: Get all scrips listed on market. This is fetched via [https://archives.nseindia.com/content/equities/EQUITY_L.csv]
+        from NSE website
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ResponseHTTP'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Scrip'
+                  type: array
+              type: object
+      summary: Get all Scrips
+      tags:
+      - Static Data
+swagger: "2.0"

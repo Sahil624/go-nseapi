@@ -6,5 +6,4 @@ doc-compile:
 
 go-compile:
 	echo "Compiling go"
-	go get -u -v -f all
 	go build -v -tags netgo -ldflags '-s -w' cmd/go-nseapi/main.go
